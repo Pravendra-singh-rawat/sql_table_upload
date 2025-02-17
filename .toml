@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+
+[tool.poetry]
+name = "sql_table_upload"
+version = "0.1.0"
+description = "Streamlit app for SQL table uploads"
+authors = ["Your Name <your.email@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+streamlit = "1.20.0"
+pandas = "1.5.3"
+numpy = "1.23.5"
+sqlalchemy = "2.0.20"
+pymysql = "1.0.3"
+openpyxl = "3.1.2"
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.0"
