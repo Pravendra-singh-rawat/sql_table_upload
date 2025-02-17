@@ -1,6 +1,6 @@
 streamlit==1.20.0
 pandas==1.5.3
-numpy==1.23.5  # A stable version compatible with pandas 1.5.3
+numpy==1.23.5
 sqlalchemy==2.0.20
 pymysql==1.0.3
 openpyxl==3.1.2
