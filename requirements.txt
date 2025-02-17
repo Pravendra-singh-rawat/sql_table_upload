@@ -1,6 +1,5 @@
 streamlit==1.20.0
-pandas==2.0.3
+pandas==1.5.3  # Downgraded to be compatible with streamlit
 sqlalchemy==2.0.20
 pymysql==1.0.3
 openpyxl==3.1.2
-
