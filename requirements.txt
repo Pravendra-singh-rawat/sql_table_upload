@@ -4,3 +4,4 @@ numpy==1.23.5
 sqlalchemy==2.0.20
 pymysql==1.0.3
 openpyxl==3.1.2
+quote_plus==3.10.0
