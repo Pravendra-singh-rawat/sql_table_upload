@@ -2,7 +2,7 @@ streamlit
 pandas
 sqlalchemy
 pymysql
-psycopg2
 pyodbc
 sqlalchemy
 openpyxl
+psycopg2-binary==2.9.10
