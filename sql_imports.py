@@ -65,15 +65,61 @@ with tab1:
 with tab2:
     st.header("File Upload")
     uploaded_file = st.file_uploader("Choose an Excel or CSV file", type=["csv", "xlsx"], help="Upload your Excel or CSV file here.")
-
+    
     if uploaded_file is not None:
+        # Read the file into a DataFrame
         if uploaded_file.name.endswith('.csv'):
             df = pd.read_csv(uploaded_file)
         else:
             df = pd.read_excel(uploaded_file)
-
+        
         st.write("Preview of the uploaded data:")
         st.dataframe(df.head())
+        
+        # Column Selection and Data Type Modification
+        st.subheader("Column Selection and Data Type Modification")
+        st.info("Select the columns you want to upload and modify their data types if needed.")
+        
+        # Create a dictionary to store column names, their selected status, and data types
+        column_config = {}
+        for col in df.columns:
+            col_name = col
+            col_type = str(df[col].dtype)  # Default data type
+            
+            # Allow user to select columns for upload
+            col_selected = st.checkbox(f"Include '{col_name}'", value=True, key=f"include_{col_name}")
+            
+            # Allow user to change the data type
+            new_col_type = st.selectbox(
+                f"Data Type for '{col_name}'",
+                options=["int64", "float64", "object", "bool", "datetime64[ns]"],
+                index=["int64", "float64", "object", "bool", "datetime64[ns]"].index(col_type) if col_type in ["int64", "float64", "object", "bool", "datetime64[ns]"] else 2,
+                key=f"type_{col_name}"
+            )
+            
+            # Store column configuration
+            column_config[col_name] = {
+                "selected": col_selected,
+                "type": new_col_type
+            }
+        
+        # Filter DataFrame based on selected columns and convert data types
+        selected_columns = [col for col, config in column_config.items() if config["selected"]]
+        df_filtered = df[selected_columns]
+        
+        # Convert data types
+        for col, config in column_config.items():
+            if config["selected"]:
+                try:
+                    if config["type"] == "datetime64[ns]":
+                        df_filtered[col] = pd.to_datetime(df_filtered[col], errors='coerce')
+                    else:
+                        df_filtered[col] = df_filtered[col].astype(config["type"])
+                except Exception as e:
+                    st.warning(f"Could not convert column '{col}' to {config['type']}: {e}")
+        
+        st.write("Filtered and Modified Data Preview:")
+        st.dataframe(df_filtered.head())
 
 # Tab 3: Advanced Settings
 with tab3:
@@ -98,7 +144,6 @@ if st.button("Upload to Database 🚀"):
         try:
             # URL-encode the password to handle special characters
             encoded_password = quote_plus(password)
-
             # Create the database engine
             if db_type == "MySQL":
                 engine = create_engine(f"mysql+pymysql://{username}:{encoded_password}@{host}:{port}/{database}")
@@ -106,19 +151,17 @@ if st.button("Upload to Database 🚀"):
                 engine = create_engine(f"postgresql+psycopg2://{username}:{encoded_password}@{host}:{port}/{database}")
             elif db_type == "SQL Server":
                 engine = create_engine(f"mssql+pyodbc://{username}:{encoded_password}@{host}:{port}/{database}?driver=ODBC+Driver+17+for+SQL+Server")
-
+            
             # Show progress bar
             progress_bar = st.progress(0)
             status_text = st.empty()
-
             for i in range(100):
                 time.sleep(0.05)  # Simulate delay
                 progress_bar.progress(i + 1)
                 status_text.text(f"Uploading data... {i + 1}%")
-
-            # Upload the DataFrame to the database
-            df.to_sql(name=table_name, con=engine, index=False, if_exists=if_exists_option)
-
+            
+            # Upload the filtered DataFrame to the database
+            df_filtered.to_sql(name=table_name, con=engine, index=False, if_exists=if_exists_option)
             st.success("✅ Data successfully uploaded to the database!")
         except Exception as e:
             st.error(f"❌ An error occurred: {e}")
