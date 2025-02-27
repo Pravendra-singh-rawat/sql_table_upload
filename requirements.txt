@@ -1,7 +1,8 @@
 streamlit
 pandas
-numpy
 sqlalchemy
 pymysql
+psycopg2
+pyodbc
+sqlalchemy
 openpyxl
-quote_plus
